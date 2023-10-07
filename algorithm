@@ -1,0 +1,807 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage{algorithmic}
+\usepackage{algorithm,caption}
+\usepackage{amsthm,mathtools,amsfonts}
+\renewcommand{\algorithmiccomment}[1]{\hspace{2em}// #1} 
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{rmk}{Remark}
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{corr}{Corollary}
+\newcommand{\lo}{\left(}
+\newcommand{\ro}{\right)}
+\newcommand{\ls}{\left[}
+\newcommand{\rs}{\right]}
+\newcommand{\cp}[2]{{\bigtimes}_{#1}{#2}}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\onecolumn
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{An Orthogonalization Algorithm using Cross Product  \\
+\thanks{Identify applicable funding agency here. If none, delete this.}
+}
+
+\author{\IEEEauthorblockN{K. Sai Mineesh Reddy, K. Murali Krishnan}
+Department of Computer Science and Engineering \\
+National Institute of Technology, Calicut - 673601, India\\
+Email: rmineesh@gmail.com, kmurali@nitc.ac.in
+}
+
+\maketitle
+
+\begin{abstract}
+\textbf{An algorithm to compute the orthonormal basis of a hyperplane in $\mathcal{O}(n^2)$ floating point operations is proposed. Numerical error of the algorithm is shown to be comparable with the standard Householder transform method.}
+\end{abstract}
+
+\section{Introduction}
+\textit Let $V$ be an inner product space over real field $\mathbb{R}$ where dimension of $V$, dim$(V)=n<\infty$. Given a vector $x \in V$ the problem is to find an orthonormal basis of the hyper plane perpendicular to $x$. This problem can be solved using Householder reflections [REF], Givens rotations [REF], Gram Schmidt or Modified Gram Schmidt [REF] algorithms.  However, the floating point error produced by Householder and Givens methods are the best among the popular algorithms. All the above algorithms solve the problem in $O(n^{2}$ time complexity.
+
+The algorithm presented here simple, achieves the same error performance and time complexity as the Householder and Given's methods, and thus presents an alternative algorithm.  The proposed algorithm can also be utilized to find $QR$ decomposition of an arbitrary matrix in the same way as Householder's method uses house holder reflections, and achieves comparable error performance and tome complexity.   
+
+Advantages DRAFT [TO BE DISCUSSED BEFORE FINALIZATION].
+The full input nor the dimension of the space need not be known to start the processing.  
+The algorithm is readily paralleizable without any additional floating point operations.   
+
+\section{Algorithm, Proof of Correctness and Computational Complexity}
+\subsection{Algorithm}\label{algorithm}
+
+For positive integers $k,l$ with $k<l$, $[k,l]$ shall denote the set $\{k, k+1,\ldots, l\}$.  Assume that $(V, \left< , \right>)$ is a real inner product space of dimension $n$, where $\left<,\right>: V \times V \rightarrow \mathbb{R}$ is the inner product. Let $A=\{a_1, ..., a_n\}$ be a positively oriented ordered orthonormal basis [REF] of $V$. The proposed algorithm takes the coordinates of a non-zero vector $x$ with respect to basis $A$ as input,  and produces the coordinates of vectors $v_1, ..., v_n$ with respect to basis $A$ such that $\{v_1, ..., v_n\}$ forms an orthonormal set. For $i \in [1, n]$, let $A_i$ denote the set $\{a_1, a_2, \ldots, a_i\}$ and let $V_i = Span(A_i)$.  The $i$ dimensional cross product of a set of $i-1$ vectors $w_1,w_2,\ldots w_{i-1}\in V_i$ will be denoted by $\cp{i}{(w_1,w_2, \ldots, w_{i-1})}$ (see Section \ref{poc} for a definition).   We introduce some abuse of notation to simplify the presentation.  For any vector $v\in V$, we will refer to $v$ as a member of $V_i$, where it shall be identified as the orthogonal projection of $v$ onto $V_i$.  For $i \in [2,n]$, we will define $v_i$ a vector in the subspace $V_i$, but will consider them as vectors in $V_j$ for $j>i$ as well, by setting the component of $v_i$ to be zero along the orthogonal directions $a_{i+1},\ldots a_j$. The inner product in $V_i$ is taken to be the induced inner product from $V$. The norm under consideration will always be the one induced by the inner product.  
+
+Initially, $v_i$ is set to the zero vector for each $i \in [1,n]$.
+The algorithm begins by setting $v_1$ to a unit vector along the  direction of $x$.  
+Iterations $i\geq 2$, computes   a unit vector $v_i$ in the subspace $V_i$ in the direction of  $\cp{i}{(v_1, v_2, ..., v_{i-1})}$.  The main observation here is that the computation of all such products can be achieved with $O(n^{2})$ complexity, with error bounds comparable with those of the standard Householder transformation. // write exact bounds of operations     
+
+The algorithm is described below (Algorithm \ref{orthoalgorithm}). The algorithm presumes that first component of input vector $x$ is non-zero (otherwise, swap with a non-zero component). The input vector $x$ as well as the output vectors $v_1,v_2,\ldots v_n$ are represented by their respective coordinate $n$ tuples with respect to the orthonormal basis $A$.  Following the notation in [REF],  if $a$ is an array of $n$ elements,  for all $1\leq i\leq j\leq n$, $a(i:j)$ denotes the ordered sequence $a(i),a(i+1),\ldots a(j)$.  The Euclidean norm of a vector $v$ will be denoted by $||v||$.   
+
+
+\begin{algorithm}\caption{: The Orthogonalization Algorithm}\label{orthoalgorithm}
+\renewcommand{\thealgorithm}{}
+\begin{algorithmic}[1]
+    \STATE \textbf{Orthogonalization}$\left(x\right)$ \vspace{0.2cm}
+    \STATE \hspace{1cm}$\tilde{v}_1 = x$\vspace{0.2cm} \label{line2}
+    \STATE \hspace{1cm}$v_1 = \dfrac{\tilde{v}_1}{\lVert \tilde{v}_1\rVert} $  \vspace{0.2cm} \label{line3}
+    \STATE \hspace{1cm}$\tilde{v}_2\left(1:2\right) = [-v_1\left(2\right), v_1\left(1\right)]$\vspace{0.2cm} \label{line4} 
+    \STATE \hspace{1cm}$v_2 = \dfrac{\tilde{v}_2}{\lVert \tilde{v}_2\rVert}$ \hspace{1cm} $//$ $\lVert v_1\rVert = \lVert v_2\rVert = 1$, $v_1 \perp v_2$ \vspace{0.2cm} \label{line5}
+    \STATE \hspace{1cm}\textbf{for} $i = 3 : n$ \vspace{0.2cm} \label{line6}
+    \STATE \hspace{2cm}\textbf{for} $j = 1 : i - 1$ \vspace{0.2cm}
+    \STATE \hspace{3cm} $\tilde{v}_i\left(j\right) = \dfrac{-v_1 \lo j\ro * v_1 \lo i\ro}{\lVert \tilde{v}_{i-1}\rVert}$ \hspace{1cm} // $\tilde{v}_i(j) = \left< a_j, \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})} \right>$ \vspace{0.2cm} \label{line8}
+    \STATE \hspace{2cm}\textbf{end for} $j$ \vspace{0.2cm}
+    \STATE \hspace{2cm}$\tilde{v}_i\left(i\right) = \lVert \tilde{v}_{i-1}\rVert$ \hspace{1cm} // $\tilde{v}_i(i) = \left< a_i, \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})} \right>$ \label{line10} \vspace{0.2cm}
+    \STATE \hspace{2cm}$v_i=\dfrac{\tilde{v}_i}{\lVert \tilde{v}_i\rVert}$ \label{line11} \hspace{1cm}\vspace{0.2cm}
+    \STATE \hspace{1cm}\textbf{end for} $i$ \vspace{0.2cm}
+    \STATE \textbf{returns} $ v_1, \ldots, v_n$
+\end{algorithmic}
+\end{algorithm}
+\subsection{Proof of Correctness}\label{poc}
+    In the following, for any $v\in V$ and for each $i\in [1,n]$, $v(i)$ shall denote the $i^{th}$ coordinate of $v$ with respect to the basis $A$.  Continuing the convention introduced in Subsection \ref{algorithm}, for any $i \in [1,n]$,  any vector $v\in V$ will be considered a member of $V_i$, by identifying $v$ with its (orthogonal) projection $\sum_{j=1}^i v(j) a_j$ in $V_i$. Let $P_i$ denotes the set of all permutations over $[1,i]$.   Let $H_i=\{w_1,w_2,\ldots w_i\}$ be an arbitrary set of vectors in $V_i$.  Then, for each $i \in [1,n]$, the  $i$-dimensional determinant function on $V_i$ is defined by [REF]:   
+\begin{equation}\label{eq1}
+    det_{i} \left( w_1, ..., w_i \right) = \sum_{\sigma \in P_i} sgn \left( \sigma\right) \prod_{j=1}^{i} w_{j} \left( \sigma\left(j\right) \right), 
+\end{equation}
+Next, we define the function $\phi_{H_i}: V_i \mapsto \mathbb{R}$ as:   
+\begin{equation}
+    \phi_{H_i} \left( x \right) = det_i \left( w_1, ..., w_{i-1}, x\right)
+\end{equation}
+By the Reisz Representation Theorem [REF], there exists a unique $y \in V_i$ such that
+\begin{equation}\label{rrt}
+    \phi_{H_i} \left( x \right) = \left< x, y\right> = det_i\left( w_1, ..., w_{i-1}, x\right)
+\end{equation}
+The unique vector $y$ satisfying Equation \ref{rrt} is defined as the cross product, $\cp{i}{(w_1, \ldots, w_{i-1})}$ [REF]. The following properties of the cross product are immediate consequences of the properties of the determinant [REF]:  
+\begin{equation}\label{equation4}
+    \forall \sigma \in P_{i-1}, \text{  }\cp{i}{(w_{\sigma(1)}, \ldots, w_{\sigma(i-1)})} = sgn \left( \sigma \right) \cp{i}{(w_{1}, \ldots, w_{i-1})}
+\end{equation}
+\begin{equation}\label{cplinearity}
+    \forall \alpha \in \mathbb{R}, x \in V_i, \text{  } \cp{i}{(w_1, \ldots, w_j + \alpha x, \ldots, w_{i-1})} = \cp{i}{(w_1, \ldots, w_j, \ldots, w_{i-1})} + \alpha \cp{i}{(w_1, \ldots, x, \ldots, w_{i-1})}
+\end{equation}
+\begin{equation}\label{equation6}
+    \text{if } w_1, w_2, \ldots, w_i  \text{ are linearly dependent, then } \left< w_i, \cp{i}{(w_1, \ldots, w_{i-1})} \right> = 0
+\end{equation}
+Since any set of $i$ vectors in an $i-1$ dimensional space must be linearly dependent, Eqn. \ref{equation6} yields the following:  
+\begin{equation}\label{equation7}
+    \forall\text{ } v_2, ..., v_{i-1} \in V_{i-1}, \text{ }\forall\text{ } k, j \in [1, i-1],  \left< a_k, \cp{i}{(a_j, v_2, \ldots, v_{i-1})} \right> = 0 = \left< a_k, \cp{i}{(v_2, \ldots, v_{i-1}, a_j)} \right>
+\end{equation}
+  We state the next lemma is a consequence of the fact that if one of the vectors involved in an $i$-dimensional  determinant computation has only one non-zero component, then the problem reduces to the evaluation of a single $i-1$ dimensional determinant.    
+\begin{lem}\label{lemma1}
+    Let $i \in [2,n]$. Suppose that $v_2, ..., v_i \in V_i$. Then,
+    \begin{equation*}
+        det_i \left( a_i, v_2, ..., v_i \right) = {\left(-1\right)}^{i-1} det_{i-1} \left( v_2 - v_{2} \left( i \right) a_i, ..., v_i - v_{i} \left( i \right) a_i\right)
+    \end{equation*}
+\end{lem}
+\begin{proof}
+    First observe that
+    \begin{equation}\label{eq7}
+        a_i \lo \sigma \lo i\ro\ro = 0 \hspace{1cm} \text{ if } \sigma \lo i\ro \neq i \hspace{1cm} \text{ and }\hspace{1cm} a_i \lo \sigma \lo i\ro\ro = 1 \hspace{1cm} \text{ if } \sigma \lo i\ro = i
+    \end{equation}
+    Now,
+    \begin{equation}\label{equation8}
+        \begin{split}
+            det_{i} \lo a_i, v_2, ..., v_i \ro &= {\lo -1\ro}^{i-1} det_{i} \lo v_2, ..., v_i, a_i\ro \hspace{2cm} \text{ ( cyclically shifting the arguments of the determinant. ) } \\
+            &= {\lo -1\ro}^{i-1} \sum_{\sigma \in P_i} sgn \lo \sigma\ro * \lo \prod_{j=1}^{i-1} v_{j+1} \lo \sigma \lo j\ro\ro \ro * a_i \lo \sigma \lo i\ro \ro \hspace{3cm} \text{ ( by Eqn. \ref{eq1} ) } \\
+            &= {\lo -1\ro}^{i-1} \sum_{\sigma \in P_i \mid \sigma \lo i \ro = i} sgn \lo \sigma \ro * \prod_{j=1}^{i-1} v_{j+1} \lo \sigma \lo j\ro \ro \hspace{3.75cm}  \text{ ( by Eqn. \ref{eq7} ) } \\
+        \end{split}
+    \end{equation}
+    Further elements in the set $\{\sigma \in P_i: \sigma(i)=i\}$  can be bijectively paired with elements of $P_{i-1}$, where each element $\sigma$ in the former set is paired with a unique $\sigma'\in P_{i-1}$ satisfying $\sigma \lo j\ro = \sigma^{'} \lo j\ro$ for $j \in [1, i-1]$.  Note that $sgn(\sigma)=sgn(\sigma')$ as well.   Hence we rewrite Eqn. \ref{equation8} as: 
+    \begin{equation}\label{equation9}
+            det_{i} \lo a_i, v_2, ..., v_i \ro = {\lo -1\ro}^{i-1} \sum_{\sigma^{'} \in P_{i-1}} sgn ( \sigma^{'} ) \prod_{j=1}^{i-1} v_{j+1} \lo \sigma^{'} \lo j \ro \ro 
+    \end{equation}
+    Since $v_2 - v_2 \lo i\ro a_i, v_3 - v_3 \lo i\ro a_i, \ldots, v_i - v_i \lo i \ro a_i$ are vectors in $span(a_1,a_2,\ldots a_{i-1})$, they are elements in the space $V_{i-1}$. Consequently, by Eqn. \ref{eq1} the determinant  $det_{i-1} \lo v_2 - v_2(i) a_i, v_3 - v_3(i) a_i, \ldots, v_i - v_i (i) a_i\ro$ can be computed as below:  
+    \begin{equation}\label{equation10}
+        det_{i-1} \lo v_2 - v_2 \lo i\ro a_i, v_3 - v_3 \lo i\ro a_i, \ldots, v_i - v_i \lo i \ro a_i\ro = \sum_{\sigma \in P_{i-1}} sgn ( \sigma ) \prod_{j=1}^{i-1} v_{j+1} \lo \sigma \lo j\ro \ro
+    \end{equation}
+The proof of the lemma is completed by comparing the right hand sides of  Eqn. \ref{equation9} and Eqn. \ref{equation10}.   
+\end{proof}
+Let $S\subseteq V_i$ be a collection of $i-1$ vectors with $a_i\in S$, $i\geq 3$.  Let $k<i$.   The next lemma reduces the problem of finding inner product of $a_k$ with the cross product of the vectors in $S$ to a similar problem in the lower dimensional space $V_{i-1}$.  
+\begin{lem}\label{lemma3}
+    For $i \geq 3$. Let $v_2, ..., v_{i-1} \in V_i$. For $k \in [1, i-1]$ 
+    \begin{equation*}
+        \left<a_k, \cp{i}{(a_i, v_2, \ldots, v_{i-1})} \right> = {\left(-1\right)}^{i-1} \left< a_k, \cp{i-1}{(v_2 - v_2(i) a_i, \ldots, v_{i-1}-v_{i-1}(i)a_i)}  \right>, 
+    \end{equation*}
+    where the cross product in LHS is in $V_i$, whereas the cross product in RHS is in $V_{i-1}$.
+\end{lem}
+\begin{proof}
+    \begin{equation}
+        \left<a_k, \cp{i}{(a_i, v_2, \ldots, v_{i-1})} \right>  = det_i \lo a_i, v_2, ..., v_{i-1}, a_k \ro \hspace{2cm} \text{ ( by Eqn. \ref{rrt} ) }
+    \end{equation}
+    \begin{equation}
+        = {\lo -1\ro}^{i-1} det_{i-1} \lo v_2 -v_2 \lo i\ro a_i, ...,  v_{i-1} - v_{i-1} \lo i\ro a_i, a_k - a_k \lo i \ro a_i \ro \hspace{2cm} \text{ ( by Lemma \ref{lemma1} ) }
+    \end{equation}
+    \begin{equation}
+        = {\lo -1\ro}^{i-1} det_{i-1} \lo v_2 -v_2 \lo i\ro a_i, ...,  v_{i-1} - v_{i-1} \lo i\ro a_i, a_k \ro \hspace{2cm} \text{ ( $a_k (i) = 0$ since $a_k \perp a_i$ ) }
+    \end{equation}
+    \begin{equation}
+        = {\left(-1\right)}^{i-1} \left< a_k, \cp{i-1}{(v_2 - v_2(i) a_i, \ldots, v_{i-1}-v_{i-1}(i)a_i)} \right> \hspace{2cm} \text{ ( by Eqn. \ref{rrt} ) }
+    \end{equation}
+\end{proof}  
+\noindent From Lemma \ref{lemma3} and Eqn. \ref{equation4} it follows that under the assumptions of Lemma \ref{lemma3} we have:
+\begin{equation}\label{equation16}
+    \left<a_k, \cp{i}{(v_2, \ldots, v_{i-1}, a_i)}\right> = - \left< a_k, \cp{i-1}{(v_2-v_2(i)a_i, \ldots, v_{i-1}-v_{i-1}(i)a_i)} \right>, 
+\end{equation}
+\begin{equation}\label{equation17}
+    \left< a_i, \cp{i}{(v_2, \ldots, v_{i-1}, a_k)} \right> = \left< a_k, \cp{i-1}{(v_2-v_2(i)a_i, \ldots, v_{i-1}-v_{i-1}(i)a_i)} \right>
+\end{equation}
+The next lemma uses Lemma \ref{lemma3} to reduce the cross product computation in $V_i$ in Step~\ref{line8} of Algorithm \ref{orthoalgorithm} to a corresponding cross product computation in $V_{i-1}$, for all $i \geq 3$. 
+\begin{lem}\label{lem3}
+    For any $i\geq 3$, if  $v_1 \in V_i$ and $v_2, \ldots, v_{i-1} \in V_{i-1}$, then $\forall$ $j \in [1,i-1]$:
+    \begin{equation}\label{Eqn.18}
+          \left< a_j, \cp{i}{(v_1, v_2, \ldots, v_{i-1})} \right> = {(-1)}^{i-1} v_1(i) \left< a_j, \cp{i-1}{(v_2, \ldots, v_{i-1})} \right>
+    \end{equation}
+\end{lem}
+\begin{proof}
+\begin{equation}
+        \left< a_j, \cp{i}{(v_1, v_2, \ldots, v_{i-1})} \right> =  \left< a_j, \cp{i}{(\sum_{k=1}^{i} v_1 \lo k \ro a_k, v_2, \ldots, v_{i-1})} \right> \hspace{0.5cm} \text{( expanding $v_1 = \sum_{k=1}^i v_1(k) a_k$ )}
+    \end{equation}
+    \begin{equation}
+        = \sum_{k=1}^{i} v_1(k) \left< a_j, \cp{i}{(a_k, v_2, \ldots, v_{i-1})} \right>  \hspace{1cm} \text{( by Eqn. \ref{cplinearity} )}
+    \end{equation}
+    \begin{equation}
+        = v_1(i) \left< a_j, \cp{i}{(a_i, v_2, \ldots, v_{i-1})} \right> \hspace{1cm} \text{ ( by Eqn. \ref{equation7} ) }
+    \end{equation}
+    \begin{equation}
+        = {(-1)}^{i-1} v_1(i) \left< a_j, \cp{i-1}{(v_2 - v_2(i)a_i, \ldots, v_{i-1} - v_{i-1}(i)a_i)} \right> \hspace{1cm} \text{ ( by Lemma \ref{lemma3} ) }
+    \end{equation}
+    \begin{equation}
+        = {(-1)}^{i-1} v_1(i) \left< a_j, \cp{i-1}{(v_2, \ldots, v_{i-1} )} \right> \hspace{1cm} \text{( as $v_k \in V_{i-1}$ for $k \in [2,i-1]$, $v_k(i)=0$ )}
+    \end{equation}
+\end{proof}
+
+Next, we proceed to show that the cross product in the RHS of Lemma \ref{lem3} is computed by Line \ref{step8} of Algorithm\ref{orthoalgorithm}. This statement will be proven in Lemma \ref{lemma5}.   Lemma \ref{lemma4} establishes the base case for the induction argument in Lemma \ref{lemma5}. Note that for each $i\geq 2$,  Algorithm\ref{orthoalgorithm} computes a vector $v_i\in V_i$.
+
+\begin{lem}\label{lemma4}
+    Let $v_1, v_2$ be as defined by Algorithm \ref{orthoalgorithm}. Then, for $j \in [1, 2]$ 
+    \begin{equation}\label{Eqn.24}    
+    \left< a_j, \cp{2}{(v_2)} \right> = \dfrac{{(-1)}^3 v_1(j)}{\lVert \tilde{v}_{2} \rVert} 
+    \end{equation}
+    \begin{equation}\label{Eqn.25}
+        \lVert \tilde{v}_2 \rVert = \sqrt{{v_1(1)}^2 + {v_1(2)}^2}
+    \end{equation}
+\end{lem}
+\begin{proof}
+    Eqn. \ref{Eqn.25} follows from Line \ref{line4} of Algorithm \ref{orthoalgorithm}. \\
+    To prove Eqn. \ref{Eqn.24}, for $j=1$ we have:
+    \begin{equation}
+        \left< a_1, \cp{2}{(v_2)} \right>  = v_2(1) \left< a_1, \cp{2}{(a_1)} \right> + v_2(2) \left< a_1, \cp{2}{(a_2)} \right> \hspace{1cm} \text{ ( by Eqn. \ref{cplinearity} )}
+    \end{equation}
+    \begin{equation}
+        = v_2(2) * \left< a_1, \cp{2}{(a_2)} \right> \hspace{1cm} \text{( by Eqn. \ref{equation7} )} 
+    \end{equation}
+    \begin{equation}
+        = v_2(2) * {det}_2(a_2, a_1) \hspace{1cm} \text{( by Eqn. \ref{rrt} ) }
+    \end{equation}
+    \begin{equation}
+        = -v_2 \lo 2\ro \hspace{0.5cm} \text{( since $\{a_1, a_2\}$ is an ordered, positively oriented and orthonormal )}
+    \end{equation}
+    \begin{equation}
+        = -\dfrac{\tilde{v}_2 \lo 2\ro}{\lVert \tilde{v}_2 \rVert} \hspace{1cm} \text{ ( by Line \ref{line5} of Algorithm \ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{(-1)}^3 v_1(1)}{\lVert \tilde{v}_2 \rVert} \hspace{0.5cm} \text{( by Line \ref{line4} of Algorithm \ref{orthoalgorithm} )}
+    \end{equation}
+    The case $j=2$ of Eqn. \ref{Eqn.24} is proven similarly.
+    
+    % \begin{equation}
+    %     \left< a_2, \cp{2}{(v_2)} \right>  = v_2(1) \left< a_2, \cp{2}{(a_1)} \right> + v_2(2) \left< a_2, \cp{2}{(a_2)} \right> \hspace{1cm} \text{ ( by Eqn. \ref{cplinearity} )}
+    % \end{equation}
+    % \begin{equation}
+    %     = v_2(1) * \left< a_2, \cp{2}{(a_1)} \right> \hspace{1cm} \text{( by Eqn. \ref{equation7} )} 
+    % \end{equation}
+    % \begin{equation}
+    %     = v_2(1) * {det}_2(a_1, a_2) \hspace{1cm} \text{( by Eqn. \ref{rrt} ) }
+    % \end{equation}
+    % \begin{equation}
+    %     = v_2 \lo 1\ro \hspace{0.5cm} \text{( since $\{a_1, a_2\}$ is an ordered, positively oriented and orthonormal )}
+    % \end{equation}
+    % \begin{equation}
+    %     = \dfrac{\tilde{v}_2 \lo 1\ro}{\lVert \tilde{v}_2 \rVert} \hspace{1cm} \text{ ( by Line \ref{line5} of Algorithm \ref{orthoalgorithm} ) }
+    % \end{equation}
+    % \begin{equation}
+    %     = \dfrac{-v_1 \lo 2\ro}{\lVert \tilde{v}_2\rVert} \hspace{1cm} \text{( by Line \ref{line4} of Algorithm \ref{orthoalgorithm} )}
+    % \end{equation}
+    % \begin{equation}
+    %      = \dfrac{{(-1)}^3 v_1(2)}{\lVert \tilde{v}_2 \rVert} \hspace{0.5cm} \text{( = RHS of Eqn.\ref{equation22} )}
+    % \end{equation}
+\end{proof}
+\begin{lem}\label{lemma5}
+    Let $v_2, ..., v_i$ be as defined by Algorithm \ref{orthoalgorithm}. Then, $\forall$ $i \in [3,n]$, $j \in [1,i-1]$
+    \begin{equation}\label{equation22}
+        \left< a_j, \cp{i-1}{(v_2, \ldots, v_{i-1})} \right> = \dfrac{{(-1)}^{i} v_1\lo j\ro}{\lVert \tilde{v}_{i-1} \rVert}
+    \end{equation}
+    \begin{equation}\label{equation23}
+        \lVert \tilde{v}_{i-1} \rVert = \sqrt{ \sum_{k=1}^{i-1} {v_1 \lo k\ro}^2 }
+    \end{equation}
+\end{lem}
+\begin{proof}
+    Proof is by induction on $i$. The base case ($i=3$) is established by Lemma \ref{lemma4}. \\
+ Induction Step: For the purpose of induction, assume that the Eqn.~\ref{equation22} and Eqn.~\ref{equation23} hold for some $i \in [3, n-1]$ and for all $j \in [1, i-1]$.   For $j \in [1, i-1]$ we have,
+    \begin{equation}
+        \left< a_j, \cp{i}{(v_2, \ldots, v_i)} \right> =  {(-1)}^{i-2} \left< a_j, \cp{i}{(v_i, v_2, \ldots, v_{i-1})} \right> \hspace{1cm} \text{ ( by Eqn. \ref{equation4} )}
+    \end{equation}
+    \begin{equation}
+        = {(-1)}^{i-2} {(-1)}^{i-1} v_{i}(i) \left< a_j, \cp{i-1}{(v_2, \ldots, v_{i-1})} \right> \hspace{1cm} \text{( by Lemma \ref{lem3} with $v_1=v_i$ )}
+    \end{equation}
+    \begin{equation}
+        = -v_{i}(i) * \dfrac{{(-1)}^{i} v_1(j)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{ ( by induction hypothesis on Eqn.~\ref{equation22} ) }
+    \end{equation}
+    \begin{equation}
+        = - \dfrac{\tilde{v}_{i}(i)}{\lVert \tilde{v}_{i} \rVert} * \dfrac{{(-1)}^{i} v_1(j)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{ ( by Line~\ref{line11} of Algorithm~\ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}
+        = - \dfrac{\lVert \tilde{v}_{i-1} \rVert}{\lVert \tilde{v}_{i} \rVert} * \dfrac{{(-1)}^{i} v_1(j)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{ ( by Line~\ref{line10} of Algorithm~\ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{(-1)}^{i+1} v_1(j)}{\lVert \tilde{v}_{i} \rVert} \hspace{1cm} \text{( = RHS of Eqn.~\ref{equation22} with $i+1$ replacing $i$ )}
+    \end{equation}
+    For $j=i$,
+    \begin{equation}
+        \left< a_{i}, \cp{i}{(v_2, \ldots, v_{i-1}, v_i)} \right> =  \left< a_i, \cp{i}{(v_2, \ldots, v_{i-1}, \sum_{k=1}^{i} v_i (k) a_k)} \right> \hspace{1cm} \text{ ( expanding $v_i = \sum_{k=1}^i v_i(k) a_k$ ) }
+    \end{equation}
+    \begin{equation}
+        =\sum_{k=1}^{i} v_i (k) \left< a_{i}, \cp{i}{(v_2, \ldots, v_{i-1}, a_k)} \right>  \hspace{1cm} \text{ ( by Eqn.~\ref{cplinearity} ) }
+    \end{equation}
+    \begin{equation}
+        =\sum_{k=1}^{i-1} v_i (k) \left< a_{i}, \cp{i}{(v_2, \ldots, v_{i-1}, a_k)} \right>  \hspace{1cm} \text{ ( by Eqn.~\ref{equation7} ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{k=1}^{i-1} v_i(k) \left< a_k, \cp{i-1}{(v_2 - v_2(i)a_i, \ldots, v_{i-1} - v_{i-1}(i)a_i)} \right> \hspace{1cm}\text{ ( by Eqn. \ref{equation17} ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{k=1}^{i-1} v_i(k) \left< a_k, \cp{i-1}{(v_2, \ldots, v_{i-1})} \right> \hspace{1cm}\text{ ( as $v_k \in V_{i-1}$ for $k \in [2,i-1]$, $v_k(i)=0$ ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{k=1}^{i-1} v_i(k) \dfrac{{(-1)}^{i} v_{1}(k)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{ ( by induction hypothesis on Eqn. \ref{equation22} ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{k=1}^{i-1} \dfrac{\tilde{v}_i(k)}{\lVert \tilde{v}_i \rVert} * \dfrac{{(-1)}^{i} v_{1}(k)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{ ( by Line~\ref{line11} of Algorithm~\ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}\label{eqn.47}
+        = \sum_{k=1}^{i-1} \dfrac{-v_1(k) * v_1(i)}{\lVert \tilde{v}_i \rVert * \lVert \tilde{v}_{i-1} \rVert} * \dfrac{{(-1)}^{i} v_{1}(k)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{ ( by Line~\ref{line8} of Algorithm~\ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{(-1)}^{i+1} v_1(i)}{\lVert \tilde{v}_i \rVert * {\lVert \tilde{v}_{i-1} \rVert}^2}\sum_{k=1}^{i-1} {v_1(k)}^2 \hspace{1cm} \text{( by regrouping terms in Eqn.~\ref{eqn.47} )} 
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{(-1)}^{i+1} v_1(i)}{\lVert \tilde{v}_i \rVert * {\lVert \tilde{v}_{i-1}\rVert}^2}{\lVert \tilde{v}_{i-1}\rVert}^2 \hspace{0.5cm}\text{ ( by induction hypothesis on Eqn. \ref{equation23} ) }
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{(-1)}^{i+1} v_1(i)}{\lVert \tilde{v}_i \rVert} \hspace{1cm} \text{( = RHS of Eqn.~\ref{equation22} with $i+1$ replacing $i$ )}
+    \end{equation}
+    Next, considering Eqn. \ref{equation23} we have,
+    \begin{equation}
+        {\lVert \tilde{v}_i \rVert}^2 = \sum_{j=1}^{i} {\tilde{v}_i(j)}^2 \hspace{1cm} \text{ ( by the definition of norm ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{j=1}^{i-1} \dfrac{{v_1(i)}^2 * {v_1(j)}^2}{{\lVert \tilde{v}_{i-1}\rVert}^2} + {\tilde{v}_{i}(i)}^2 \hspace{1cm} \text{ ( by Line~\ref{line8} of Algorithm~\ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{j=1}^{i-1} \dfrac{{v_1(i)}^2 * {v_1(j)}^2}{{\lVert \tilde{v}_{i-1}\rVert}^2} + {\lVert \tilde{v}_{i-1} \rVert}^2 \hspace{1cm} \text{ ( by Line~\ref{line10} of Algorithm~\ref{orthoalgorithm} ) }
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{v_1(i)}^2}{{\lVert \tilde{v}_{i-1}\rVert}^2} * \sum_{j=1}^{i-1} {v_1(j)}^2 + {\lVert \tilde{v}_{i-1}\rVert}^2
+    \end{equation}
+    \begin{equation}
+        = \dfrac{{v_1(i)}^2}{\sum_{j=1}^{i-1} {v_1(j)}^2} * \sum_{j=1}^{i-1} {v_1(j)}^2 + \sum_{j=1}^{i-1} {v_1(j)}^2 \hspace{1cm} \text{ ( by induction hypothesis on Eqn. \ref{equation23} ) }
+    \end{equation}
+    \begin{equation}
+        = \sum_{j=1}^i {v_1^2(j)} \hspace{1cm} \text{( = RHS of Eqn.~\ref{equation22} with $i+1$ replacing $i$ )}
+    \end{equation}
+\end{proof}
+
+Note that substitution of the the cross product term in the RHS of Lemma \ref{lem3} with the RHS of Lemma~\ref{lemma5} Eqn. \ref{equation22} yields the RHS of Line~\ref{line8} of  Algorithm~\ref{orthoalgorithm}. \\
+
+ The next lemma brings out the connection between the algorithm and cross products. Recall that  $v_1 \lo 1: i\ro$ is used to denote $\sum_{i=1}^j v_1 \lo j\ro a_j$.
+
+\begin{lem}\label{lemma6}
+    Let $v_1, v_2, \ldots, v_n$ and $\tilde{v}_1, \tilde{v}_2, \ldots, \tilde{v}_n$ be as defined by Algorithm~\ref{orthoalgorithm}. Then for $i \in [2, n]$
+    \begin{equation}\label{eqn57}
+        \tilde{v}_i = \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})}
+    \end{equation}
+    In particular, $v_i, \tilde{v}_i \in V_i$.
+\end{lem}
+\begin{proof}
+    The Proof is by induction on $i$. Base case: for $i=2$ the claim follows from Line~\ref{line4} of Algorithm~\ref{orthoalgorithm}. \\
+    Induction Hypothesis: for the purpose of induction, assume that for some $i \in [3, n]$ we have
+    \begin{equation}\label{eqn58}
+        \tilde{v}_{i-1} = \cp{i-1}{(v_1(1:i-1), v_2, \ldots, v_{i-2})}
+    \end{equation}
+    For $j \in [1,i-1]$,
+    \begin{equation}\label{equation59}
+        \tilde{v}_i(j) = \dfrac{-v_1(j)*v_1(i)}{\lVert \tilde{v}_{i-1} \rVert} \hspace{1cm} \text{( by line~\ref{line8} of Algorithm~\ref{orthoalgorithm} )}
+    \end{equation}
+    \begin{equation}
+        = {(-1)}^{i-1} v_1(i) * \dfrac{{(-1)}^{i} v_1(j)}{\lVert \tilde{v}_{i-1}\rVert} \hspace{1cm} \text{( Rewriting Eqn~\ref{equation59} )}
+    \end{equation}
+    \begin{equation}
+        = {(-1)}^{i-1} v_1(i) \left< a_j, \cp{i-1}{(v_2, \ldots, v_{i-1})} \right> \hspace{1cm} \text{ ( by Lemma~\ref{lemma5}: Eqn~\ref{equation22} ) }
+    \end{equation}
+    \begin{equation}\label{equation62}
+        = \left< a_j, \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})} \right> \hspace{1cm} \text{( by Lemma~\ref{lem3} )}
+    \end{equation}
+    
+    For $j=i$,
+    \begin{equation}
+       \tilde{v}_i(i) = \lVert \tilde{v}_{i-1}\rVert \hspace{1cm} \text{( by Step~\ref{line10} of Algorithm~\ref{orthoalgorithm} )}
+    \end{equation}
+    \begin{equation}
+       = \left< \dfrac{\tilde{v}_{i-1}}{\lVert \tilde{v}_{i-1} \rVert}, \tilde{v}_{i-1} \right> \hspace{1cm} \text{( by the definition of norm )}
+    \end{equation}
+    \begin{equation}
+        = \left< v_{i-1}, \cp{i-1}{(v_1(1:i-1), v_2, \ldots, v_{i-2})} \right> \hspace{1cm} \text{( by induction hypothesis: Eqn~\ref{eqn58} )}
+    \end{equation}
+    \begin{equation}
+        = det_{i-1}(v_1(1:i-1), v_2, ..., v_{i-1}) \hspace{1cm} \hspace{1cm} \text{( by Eqn~\ref{rrt} )}
+    \end{equation}
+    \begin{equation}
+        = det_{i-1}(v_1(1:i)-v_1(i)a_i, v_2-v_2(i)a_i, ..., v_{i-1}-v_{i-1}(i)a_i) \hspace{1cm} \text{( since $v_k \in V_k$ for $k \in [2,i-1]$ $v_k(i)=0$ )}
+    \end{equation}
+    \begin{equation}
+        = {\lo-1\ro}^{i-1} det_i \lo a_i, v_1\lo 1:i\ro, v_2 ..., v_{i-1}\ro \hspace{1cm} \text{( by Lemma \ref{lemma1} )}
+    \end{equation}
+    \begin{equation}
+        = det_i \lo v_1 \lo 1:i\ro, v_2, ..., v_{i-1}, a_i \ro \hspace{1cm} \text{ ( cyclically shifting the arguments of the determinant ) }
+    \end{equation}
+    \begin{equation}\label{equation70}
+        = \left< a_i, \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})} \right> \hspace{1cm} \text{( by Eqn~\ref{rrt} )}
+    \end{equation}
+    The claim follows from Eqn~\ref{equation62} and Eqn~\ref{equation70}.
+\end{proof}
+
+The following thorem establishes the correctness of Algorithm~\ref{orthoalgorithm}.
+
+\begin{thm}\label{thm1} 
+Let $v_1, v_2, \ldots, v_n$ be as defined by Algorithm~\ref{orthoalgorithm}. Then, for $i \in [2,n]$, $\{v_2, v_3, \ldots, v_i\}$ forms an orthonormal set in $V_i$.  Moreover for all $j \in [2,i]$  $v_1(1:i) \perp v_j \in V_i$ .
+\end{thm}
+\begin{proof}
+    Proof is by induction on $i$. Base case: for $i=2$ the claim follows from lines~\ref{line4} and \ref{line5} of Algorithm~\ref{orthoalgorithm}.\\
+    Induction Hypothesis: for the purpose of induction, assume that for some $i \in [3, n]$ $\{v_2, \ldots, v_{i-1}\}$ is an orthonormal set and $\left< v_1, v_j \right> = 0$ for $j \in [2,i-1]$. \\
+    For $j \in [2,i-1]$.
+    \begin{equation}
+        \left< v_j, v_i \right> = \left< v_j, \dfrac{\tilde{v}_i}{\lVert \tilde{v}_i \rVert} \right> \hspace{1cm} \text{( by Line~\ref{line11} of Algorithm~\ref{orthoalgorithm} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{1}{\lVert \tilde{v}_i \rVert} \left< v_j, \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})}\right> \hspace{1cm} \text{( by Lemma~\ref{lemma6} )}
+    \end{equation}
+    \begin{equation}
+        = 0 \hspace{1cm} \text{( by Eqn~\ref{equation6} )}
+    \end{equation}
+    For $j=1$,
+    \begin{equation}
+        \left< v_1(1:i), v_i \right> = \left< v_1(1:i), \dfrac{\tilde{v}_i}{\lVert \tilde{v}_i\rVert} \right> \hspace{1cm} \text{( by Line~\ref{line11} of Algorithm~\ref{orthoalgorithm} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{1}{\lVert \tilde{v}_i\rVert} \left< v_1(1:i),  \cp{i}{(v_1(1:i), v_2, \ldots, v_{i-1})}\right> \hspace{1cm} \text{( by Lemma~\ref{lemma6} )}
+    \end{equation}
+    \begin{equation}
+       = 0 \hspace{1cm} \text{( by Eqn~\ref{equation6} )}
+    \end{equation}
+    Finally, $\lVert v_i \rVert=1$ by Line~\ref{line11} of Algorithm~\ref{orthoalgorithm}.
+\end{proof}
+\subsection{Computational Complexity}
+In this section we will re-write some of the terms appearing in Algorithm~\ref{orthoalgorithm} with the objective of optimizing the computational complexity and improving error bounds.  
+\begin{lem}\label{lemma7a}
+The following relations hold between the intermediate vectors computed by Algorithm~\ref{orthoalgorithm} and the coefficients of the input vector $x$.
+    \begin{equation}\label{equation78a}
+        v_2(1) = \dfrac{-x(2)}{\sqrt{{x(1)}^2+{x(2)}^2}} 
+    \end{equation}
+    \begin{equation}\label{equation79a}
+        v_2(2) = \dfrac{x(1)}{\sqrt{{x(1)}^2+{x(2)}^2}}
+    \end{equation}
+    For all $i \in [1,n]$
+    \begin{equation}\label{equation77a}
+        v_1(i) = \dfrac{x(i)}{\sqrt{\sum_{j=1}^n {x(j)}^2}}
+    \end{equation}
+    For $i \in [3,n]$, $j \in [1,i-1]$,
+    \begin{equation}\label{equation80a}
+        v_i(j) = \dfrac{-x(j) * x(i)}{\sqrt{\sum_{j=1}^{i-1} {x(j)}^2} * \sqrt{\sum_{j=1}^{i} {x(j)}^2}} 
+    \end{equation}
+    \begin{equation}\label{equation81a}
+        v_i(i) = \dfrac{\sum_{j=1}^{i-1}{x(j)}^2}{\sqrt{\sum_{j=1}^{i-1} {x(j)}^2} * \sqrt{\sum_{j=1}^{i} {x(j)}^2}}
+    \end{equation}
+\end{lem}
+\begin{proof}
+\begin{equation}
+    v_2(1) = \dfrac{-v_1(2)}{\sqrt{{v_1(1)}^2 + {v_1(2)}^2}} = \dfrac{-\dfrac{x(2)}{\lVert x\rVert}}{\sqrt{{\lo\dfrac{x(1)}{\lVert x\rVert}\ro}^2+{\lo\dfrac{x(2)}{\lVert x\rVert}\ro}^2}} = \dfrac{-x(2)}{\sqrt{{x(1)}^2+{x(2)}^2}} \hspace{1cm} \text{( by Lines~\ref{line4} and~\ref{line5} of Algorithm~\ref{orthoalgorithm} )}
+\end{equation}
+Similarly, 
+\begin{equation}
+    v_2(2) = \dfrac{x(1)}{\sqrt{{x(1)}^2+{x(2)}^2}}
+\end{equation}
+For $i \in [1, n]$,
+\begin{equation}\label{equation77}
+    v_1(i) = \dfrac{x(i)}{\sqrt{\sum_{j=1}^n {x(j)}^2}} \hspace{1cm} \text{( by Lines~\ref{line2} and~\ref{line3} of Algorithm~\ref{orthoalgorithm} )}
+\end{equation}
+For $i \in [3, n]$, $j \in [1, i-1]$,
+\begin{equation}
+    v_{i}(j) = \dfrac{-v_1(j) * v_1(i)}{\lVert \tilde{v}_{i-1}\rVert * \lVert \tilde{v}_{i}\rVert} \hspace{1cm} \text{( by Lines~\ref{line8} and~\ref{line11}  of Algorithm~\ref{orthoalgorithm} )}
+\end{equation}
+\begin{equation}
+    = \dfrac{-v_1(j) * v_1(i)}{\sqrt{\sum_{j=1}^{i-1} {v_1(j)}^2} * \sqrt{\sum_{j=1}^{i} {v_1(j)}^2}} \hspace{1cm} \text{( by Eqn~\ref{equation23} )}
+\end{equation}
+\begin{equation}
+    = \dfrac{- \dfrac{x(j)}{\lVert x\rVert} * \dfrac{x(i)}{\lVert x\rVert} }{\sqrt{ \sum_{j=1}^{i-1} {\lo\dfrac{x(j)}{\lVert x\rVert}\ro}^2 } * \sqrt{ \sum_{j=1}^{i} {\lo\dfrac{x(j)}{\lVert x\rVert}\ro}^2 }} \hspace{1cm} \text{( by Eqn~\ref{equation77} )}
+\end{equation}
+\begin{equation}
+    = \dfrac{-x(j) * x(i)}{\sqrt{\sum_{j=1}^{i-1} {x(j)}^2} * \sqrt{\sum_{j=1}^{i} {x(j)}^2}}
+\end{equation}
+Similarly,
+\begin{equation}
+    v_i(i) = \dfrac{\lVert \tilde{v}_{i-1} \rVert}{\lVert \tilde{v}_{i} \rVert} = \dfrac{\sqrt{\sum_{j=1}^{i-1} {v_1(j)}^2 }}{\sqrt{\sum_{j=1}^{i} {v_1(j)}^2}} = \dfrac{\sqrt{\sum_{j=1}^{i-1} {\lo \dfrac{x(j)}{\lVert x \rVert} \ro}^2 }}{\sqrt{\sum_{j=1}^{i} {\lo \dfrac{x(j)}{\lVert x \rVert} \ro}^2}}  = \dfrac{\sqrt{\sum_{j=1}^{i-1}{x(j)}^2}}{\sqrt{\sum_{j=1}^{i}{x(j)}^2}} = \dfrac{\sum_{j=1}^{i-1}{x(j)}^2}{\sqrt{\sum_{j=1}^{i-1} {x(j)}^2} * \sqrt{\sum_{j=1}^{i} {x(j)}^2}}
+\end{equation}
+\end{proof}
+Using Lemma~\ref{lemma7a}, Algorithm~\ref{orthoalgorithm} can be re-written equivalently as Algorithm~\ref{optortho} where $v_1, v_2, \ldots, v_n$ and $l$ are $1 \times n$ vectors initialized to zero. 
+\begin{algorithm}\caption{: Optimized Orthogonalization Algorithm}\label{optortho}
+\renewcommand{\thealgorithm}{}
+\begin{algorithmic}[1]
+    \STATE \textbf{Orthogonalization}$\left(x\right)$ \vspace{0.2cm}
+    \STATE \hspace{1cm}$l(1) = {x(1)}^2$\vspace{0.2cm} \label{A2line2}
+    \STATE \hspace{1cm}\textbf{for} $i = 2 : n$ \vspace{0.2cm} \label{A2line3}
+    \STATE \hspace{2cm} $l(i) = l(i-1) + {x(i)}^2$ \hspace{1cm} $//\text{ } l(i) = {\lVert \tilde{v}_i\rVert}^2$ \vspace{0.2cm} \label{A2line4}
+    \STATE \hspace{1cm}\textbf{end for} $i$ \vspace{0.2cm} \label{A2line5}
+    \STATE \hspace{1cm}$v_1 = \dfrac{x}{\sqrt{l(n)}} $ \hspace{1cm} $//\text{ by Eqn~\ref{equation77a} and } l(n) = {\lVert \tilde{v}_1\rVert}^2$   \vspace{0.2cm} \label{A2line6}
+    \STATE \hspace{1cm}$v_2\left(1:2\right) = \dfrac{1}{\sqrt{l(2)}} [-x(2), x(1)]$ \hspace{1cm} $//\text{ }$ by Eqn~\ref{equation78a} and Eqn~\ref{equation79a} \vspace{0.2cm} \label{A2line7} 
+    \STATE \hspace{1cm}\textbf{for} $i = 3 : n$ \vspace{0.2cm} \label{A2line8}
+    \STATE \hspace{2cm} $t = \sqrt{l(i) * l(i-1)}$ \vspace{0.2cm} \label{A2line9a}
+    \STATE \hspace{2cm}\textbf{for} $j = 1 : i - 1$ \vspace{0.2cm} \label{A2line9}
+    \STATE \hspace{3cm}$v_i\left(j\right) = \dfrac{ -x\lo j\ro * x \lo i\ro}{t}$ \hspace{1cm} $//\text{ }$ by Eqn~\ref{equation80a} \vspace{0.2cm} \label{A2line10} 
+    \STATE \hspace{2cm}\textbf{end for} $j$ \vspace{0.2cm} \label{A2line11}
+    \STATE \hspace{2cm}$v_i\left(i\right) = \dfrac{l(i-1)}{t}$ \hspace{1cm} $//\text{ }$ by Eqn~\ref{equation81a} \vspace{0.2cm} \label{A2line12}
+    \STATE \textbf{returns} $ v_1, \ldots, v_n$
+\end{algorithmic}
+\end{algorithm}
+\newpage
+Lines~\ref{A2line6},~\ref{A2line7},~\ref{A2line9a} of Algorithm~\ref{optortho} require a total of $n$ square root operations. In lines~\ref{A2line2},~\ref{A2line4},~\ref{A2line9a},~\ref{A2line10} we have $1+(n-1)+ \sum_{i=3}^n i  = \dfrac{n^2}{2} + \dfrac{3n}{2} - 3 $ multiplication operations. Lines~\ref{A2line6},~\ref{A2line7},~\ref{A2line10},~\ref{A2line12} we have $n+ 2 +\sum_{i=3}^n i = \dfrac{n^2}{2} + \dfrac{3n}{2} - 1$ division operations and from line~\ref{A2line4} we have $n-1$ addition operations. An inspection of Householder's algorithm as presented in STEWARTREF requires $2$ square roots, $\dfrac{n^2}{2} + \dfrac{5n}{2}$ multiplications, $2$ division, $2n$ addition operations. Although the total number of floating point operations is nearly double that of the Householder algorithm, the present method has advantage of being completely paralleizable, as for all $i,j\in [1,n]$, the values of the coefficients $l(i)$ and $v_i(j)$ can be computed directly from the components of the input vector $x$.  Further, we show below that the worst case error bounds of the algorithm remains comparable with that of the Householder transform.    
+\section{Error Analysis}
+Before we start error analysis we introduce some more notation.  Let $Q$ be the matrix where the rows are the vectors $v_1, \ldots, v_n$ defined in Algorithm~\ref{optortho}. It follows from Theorem~\ref{thm1} that $Q$ is an orthogonal matrix, satisfying $Q^{T}Q=I$. For any $m\times n$ matrix $A = {\left(a_{i,j}\right)}_{m \times n}$, the Frobenius norm is defined by ${||A||}_{F}= \sqrt{\sum_{i=1}^m \sum_{j=1}^n a_{ij}^2}$ [REF].   Let $u$ be the unit roundoff [REF].  That is for any floating point operation $\oplus \in \{+,-,*,/\}$, we assume that the floating point error is bounded by $fl(x \oplus y)=(x \oplus y)(1+\delta)$ for some $|\delta| \leq u$.       
+For the purpose of rounding error analysis a model for numerical computation is fixed REFhigham.
+\begin{defn}
+    \begin{equation}\label{equation63}
+        fl (x \text{ op } y) = x \text{ op } y (1 + \delta) \hspace{0.5cm} | \delta | \leq u 
+    \end{equation}
+    where op$ = +, -, *, /$
+\end{defn}
+\begin{rmk}\label{remark3}
+    Eqn. \ref{equation63} holds for square root operation also i.e,
+    \begin{equation}\label{sqrt}
+        fl\lo \sqrt{x}\ro = \sqrt{x} (1+\delta)
+    \end{equation}
+\end{rmk}
+\begin{lem}\label{lem7}
+    If $| \delta_i | \leq u$ and $\rho_i = \pm 1$ for $1 \leq i \leq n$, and $nu < 1$, then
+    \begin{equation}\label{equation86}
+        \prod_{i=1}^n {\lo 1 + \delta_{i} \ro}^{\rho_i} = 1 + \theta_i
+    \end{equation}
+    where
+    \begin{equation}
+        | \theta_n | \leq \dfrac{nu}{1-nu} =: \gamma_n
+    \end{equation}
+\end{lem}
+The following Lemma is helpful in the manipulation of $1+\theta_k$ and $\gamma_k$ terms.
+\begin{lem}
+    For any positive integer $k$ let $\theta_k$ denote a quantity bounded according to $| \theta_k | \leq \gamma_k = \dfrac{ku}{1-ku}$. The following relations hold:
+    \begin{equation}\label{equation66}
+        \lo 1+\theta_k\ro \lo 1+\theta_j\ro = 1 + \theta_{k+j}
+    \end{equation}
+    \begin{equation}\label{equation89}
+        \dfrac{1+\theta_k}{1+\theta_j} = 
+        \begin{cases}
+             1 + \theta_{k+j} \hspace{0.5cm} j \leq k \\
+             1 + \theta_{k+2j} \hspace{0.5cm} j > k
+        \end{cases}
+    \end{equation}
+    \begin{equation}
+        \gamma_k \gamma_j \leq \gamma_{\text{min}(k,j)} \hspace{0.5cm} for \text{ max}(j,k) u \leq \dfrac{1}{2}
+    \end{equation}
+    \begin{equation}
+        i \gamma_k \leq \gamma_{ik}
+    \end{equation}
+    \begin{equation}
+        \gamma_k + u \leq \gamma_{k+1}
+    \end{equation}
+    \begin{equation}
+        \gamma_k + \gamma_j + \gamma_k \gamma_j \leq \gamma_{k+j}
+    \end{equation}
+\end{lem}
+\begin{lem}\label{lemma7}
+    $\forall$ $x, y \in \mathbb{R}^n$ let $s = x^T y$ then,
+    \begin{equation}
+        \hat{s} = s (1 + \theta_{n})
+    \end{equation}
+\end{lem}
+\begin{proof}
+    refer Higham
+\end{proof}
+\begin{lem}\label{lemma10}
+    $\forall$ $x \in \mathbb{R}^n$ let $s = \lVert x\rVert$ then,
+    \begin{equation}
+        \hat{s} = s ( 1 + \theta_{n+1} )
+    \end{equation}
+\end{lem}
+\begin{proof}
+    let $t = x^T x$ then,
+    \begin{equation}\label{equation74}
+        \hat{t} = t (1 + \theta_{n}) \hspace{1cm} \text{ ( by Lemma \ref{lemma7} ) }
+    \end{equation}
+    \begin{equation}
+        \hat{s} = fl\lo \sqrt{\hat{t}} \ro = \sqrt{\hat{t}} \lo 1 + \delta \ro \hspace{1cm} \text{( by Eqn. \ref{equation63} )}
+    \end{equation}
+    \begin{equation}
+        = \sqrt{\hat{t}} (1+\theta_1) \hspace{1cm} \text{( by Eqn. \ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        = \sqrt{t} \sqrt{1 + \theta_n} (1 + \theta_1) \hspace{1cm} \text{( by Eqn. 74 )}
+    \end{equation}
+    \begin{equation}
+        = \sqrt{t} ( 1 + \theta_{\ceil[\bigg]{\dfrac{n}{2}}} ) (1 + \theta_1) \hspace{1cm} \text{ ( by Eqn. \ref{equation66} ) }
+    \end{equation}
+    \begin{equation}
+        = \sqrt{t} (1+\theta_{\ceil[\bigg]{\dfrac{n}{2}}+1}) \hspace{1cm} \text{ ( by Eqn. \ref{equation66} ) }
+    \end{equation}
+    \begin{equation}\label{equation102}
+        = \sqrt{t} (1+\theta_{n+1}) = s (1+\theta_{n+1}) \hspace{1cm} \text{ ( the bound is not optimal but analysis can be simplified ) }
+    \end{equation}
+\end{proof}
+Let $x, l$ be as defined in Algorithm~\ref{optortho}. For $i \in [2,n]$ let $w_i = l(i)$ where $w_i$ computes the norm square of $x(1:i)$ for $i \in [2,n]$ hence by Lemma~\ref{lemma10} we have
+\begin{equation}\label{equation102}
+    \hat{w}_i = w_i (1+\theta_{i}) 
+\end{equation}
+\begin{lem}\label{lemma11}
+    Let $v_1, x$ be as defined in Algorithm~\ref{optortho}. Then for $i \in [1,n]$,
+    \begin{equation}
+        \hat{v}_1(i) = v_1(i) (1+\theta_{2n+3})
+    \end{equation}
+\end{lem}
+\begin{proof}
+    Let $w = \lVert x \rVert$ then
+    \begin{equation}\label{equation103}
+        \hat{w} = w(1+\theta_{n+1}) \hspace{1cm} \text{( by Lemma~\ref{lemma10} )}
+    \end{equation}
+    From line~\ref{A2line6} it follows that for $i \in [1,n]$ $v_1(i) = \dfrac{x(i)}{w}$
+    \begin{equation}
+        \hat{v}_1(i) = fl\lo\dfrac{x(i)}{\hat{w}}\ro = \dfrac{x(i)(1+\delta)}{\hat{w}} \hspace{1cm} \text{( by Eqn~\ref{equation63} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{x(i)(1+\delta)}{w(1+\theta_{n+1})} \hspace{1cm}\text{( by Eqn~\ref{equation103} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{x(i)(1+\theta_1)}{w(1+\theta_{n+1})} \hspace{1cm}\text{( by Eqn~\ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{x(i)(1+\theta_{2n+3})}{w} \hspace{1cm}\text{( by Eqn~\ref{equation89} )}
+    \end{equation}
+    \begin{equation}
+        = v_1(i) (1+\theta_{2n+3})
+    \end{equation}
+\end{proof}
+\begin{lem}\label{lemma12}
+    Let $v_2, x$ be as defined by Algorithm~\ref{optortho}. Then for $i \in [1,2]$
+    \begin{equation}
+        \hat{v}_2(i) = v_2(i) (1+\theta_{7})
+    \end{equation}
+\end{lem}
+\begin{proof}
+    For $i=1$,
+    \begin{equation}
+        v_2(1) = \dfrac{-x(2)}{\sqrt{{x(1)}^2 + {x(2)}^2}} \hspace{1cm} \text{( by Line~\ref{A2line7} of Algorithm~\ref{optortho} )}
+    \end{equation}
+    Let $w = \sqrt{{x(1)}^2+{x(2)}^2}$ then,
+    \begin{equation}\label{equation111}
+        \hat{w} = w (1+\theta_3) \hspace{1cm} \text{( by Lemma~\ref{lemma10} )}
+    \end{equation}
+    \begin{equation}
+        \hat{v}_2(1) = fl\lo \dfrac{-x(2)}{\hat{w}} \ro = \dfrac{-x(2)(1+\delta)}{\hat{w}} \hspace{1cm} \text{( by Eqn~\ref{equation63} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{-x(2)(1+\delta)}{w(1+\theta_3)} \hspace{1cm} \text{( by Eqn~\ref{equation111} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{-x(2)(1+\theta_1)}{w(1+\theta_3)} \hspace{1cm} \text{( by Eqn~\ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{-x(2)(1+\theta_7)}{w} \hspace{1cm} \text{( by Eqn~\ref{equation89} )}
+    \end{equation}
+    \begin{equation}
+        = v_2(1) (1+\theta_7)
+    \end{equation}
+    Similarly, we get
+    \begin{equation}
+        \hat{v}_2(2) = v_2(2) (1+\theta_7)
+    \end{equation}
+\end{proof}
+\begin{lem}\label{lemma13}
+    Let $v_3, v_4, \ldots, v_n, l, x$ be as defined by Algorithm~\ref{optortho}. Then for $i \in [3,n]$ and $j \in [1,i-1]$ we have
+    \begin{equation}
+        \hat{v}_i(j) = v_i(j) (1+\theta_{2i+4})
+    \end{equation}
+    \begin{equation}
+        \hat{v}_i(i) = v_i(i) (1+\theta_{3i+2})
+    \end{equation}
+\end{lem}
+\begin{proof}
+    For $i \in [3,n]$ and $j \in [1,i-1]$,
+    \begin{equation}
+        v_i(j) = \dfrac{-x(j) * x(i)}{\sqrt{ l(i) * l(i-1)  }} \hspace{1cm} \text{( by Line~\ref{A2line10} of Algorithm~\ref{optortho} ) }
+    \end{equation}
+    Let $y_1 = -x(j) * x(i)$, $y_2 = l(i) * l(i-1)$ and $y_3 = \sqrt{y_2}$.
+    \begin{equation}
+        \hat{y}_1 = fl\lo  -x(j) * x(i)\ro = -x(j) * x(i) (1+\delta) \hspace{1cm} \text{( by Eqn~\ref{equation63} )}
+    \end{equation}
+    \begin{equation}\label{equation125}
+        = -x(j) * x(i) (1+\theta_1) \hspace{1cm} \text{( by Eqn~\ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        \hat{y}_2 = fl \lo \hat{l}(i) * \hat{l}(i-1) \ro = \hat{l}(i) * \hat{l}(i-1) (1+\delta) \hspace{1cm} \text{( by Eqn~\ref{equation63} )}
+    \end{equation}
+    \begin{equation}
+        = l(i) * l(i-1) * (1 + \theta_{i}) * (1+\theta_{i-1}) * (1+\theta_1) \hspace{1cm} \text{( by Eqn~\ref{equation102} )}
+    \end{equation}
+    \begin{equation}
+        = l(i) * l(i-1) * (1+\theta_{2i}) \hspace{1cm} \text{( by Eqn~\ref{equation66})}
+    \end{equation}
+    \begin{equation}\label{equation128}
+        = y_2 (1+\theta_{2i}) 
+    \end{equation}
+    \begin{equation}
+        \hat{y}_3 = fl\lo \sqrt{\hat{y}_2}\ro = \sqrt{\hat{y}_2} (1+\delta) \hspace{1cm} \text{( by Eqn~\ref{sqrt} )}
+    \end{equation}
+    \begin{equation}
+        = \sqrt{\hat{y}_2} (1+\theta_1) \hspace{1cm} \text{( by Eqn~\ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        = \sqrt{y_2(1+\theta_{2i})} (1+\theta_1) \hspace{1cm}\text{( by Eqn~\ref{equation128} )}
+    \end{equation}
+    \begin{equation}
+        = \sqrt{y_2}(1+\theta_{i}) (1+\theta_1) \hspace{1cm}\text{( by Eqn~\ref{equation66} )}
+    \end{equation}
+    \begin{equation}\label{equation134}
+        = \sqrt{y_2} (1+\theta_{i+1}) \hspace{1cm}\text{( by Eqn~\ref{equation66} )}
+    \end{equation}
+    \begin{equation}
+        \hat{v}_i(j) = fl \lo \dfrac{\hat{y}_1}{\hat{y}_3} \ro = \dfrac{\hat{y}_1(1+\delta)}{\hat{y}_3} \hspace{1cm} \text{( by Eqn~\ref{equation63} )} 
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_1(1+\theta_{1}) (1+\delta)}{ y_3 (1+\theta_{i+1}) } \hspace{1cm} \text{( by Eqn~\ref{equation125} and Eqn~\ref{equation134} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_1(1+\theta_{1}) (1+\theta_1)}{ y_3 (1+\theta_{i+1}) } \hspace{1cm} \text{( by Eqn~\ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_1(1+\theta_{2})}{y_3(1+\theta_{i+1})} \hspace{1cm} \text{( by Eqn~\ref{equation66} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_1(1+\theta_{2i+4})}{y_3} \hspace{1cm} \text{( by Eqn~\ref{equation89} )}
+    \end{equation}
+    \begin{equation}
+        = v_i(j) (1+\theta_{2i+4})
+    \end{equation}
+    For $j =i$, 
+    \begin{equation}
+        v_i(i) = \dfrac{l(i-1)}{\sqrt{l(i) * l(i-1)}} \hspace{1cm} \text{( by Line~\ref{A2line12} of Algorithm~\ref{optortho} ) }
+    \end{equation}
+    Let $y_4=l(i-1)$ then
+    \begin{equation}\label{equation142}
+        \hat{y}_4 = y_4(1+\theta_{i-1}) \hspace{1cm} \text{( by Eqn~\ref{equation102} )}
+    \end{equation}
+    \begin{equation}
+        \hat{v}_i(i) = fl \lo \dfrac{\hat{y}_4}{\hat{y}_3} \ro = \dfrac{\hat{y}_4(1+\delta)}{\hat{y}_3} \hspace{1cm} \text{( by Eqn~\ref{equation63} )} 
+    \end{equation}
+    \begin{equation}
+        = \dfrac{\hat{y}_4(1+\theta_1)}{\hat{y}_3} \hspace{1cm} \text{( by Eqn~\ref{equation86} )} 
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_4(1+\theta_{i-1})(1+\theta_1)}{y_3(1+\theta_{i+1})} \hspace{1cm} \text{( by Eqn~\ref{equation142} and Eqn~\ref{equation134} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_4(1+\theta_i)}{y_3(1+\theta_{i+1})} \hspace{1cm} \text{( by Eqn~\ref{equation86} )}
+    \end{equation}
+    \begin{equation}
+        = \dfrac{y_4(1+\theta_{3i+2})}{y_3} \hspace{1cm} \text{( by Eqn~\ref{equation89} )}
+    \end{equation}
+    \begin{equation}
+        = v_i(i) (1+\theta_{3i+2})
+    \end{equation}
+\end{proof}
+\begin{lem}\label{lemma14}
+    Let $Q$ be the matrix where rows are filled by $v_1, v_2, \ldots, v_n$ respectively and $\hat{Q}$ be the computed matrix where rows are given by $\hat{v}_1, \hat{v}_2, \ldots, \hat{v}_n$ respectively. Then
+    \begin{equation}
+        {\lVert \hat{Q} - Q \rVert}_F \leq \sqrt{n} \gamma_{3n+2}
+    \end{equation}
+\end{lem}
+\begin{proof}
+    \begin{equation}
+        {\lVert \hat{Q} - Q \rVert}_F^2 = \sum_{i=1}^n {\lVert \hat{v}_i - v_i \rVert}^2
+    \end{equation}
+    \begin{equation}
+        = \theta_{2n+3}^2 + \theta_7^2 + \sum_{i=3}^n \theta_{3n+2}^2 \hspace{1cm} \text{( by Lemmas~\ref{lemma11},~\ref{lemma12},~\ref{lemma13} )}
+    \end{equation}
+    \begin{equation}
+        \leq \gamma_{2n+3}^2 + \gamma_7^2 + \sum_{i=3}^n \gamma_{3i+2}^2 \hspace{1cm} \text{( by Lemma~\ref{lem7} )}
+    \end{equation}
+    \begin{equation}
+        \leq n \gamma_{3n+2}^2 \hspace{1cm} \text{( since $\gamma_k \leq \gamma_l$ when $k \leq l$ )} 
+    \end{equation}
+    \begin{equation}
+        \implies {\lVert \hat{Q} - Q \rVert}_F \leq \sqrt{n} \gamma_{3n+2}  
+    \end{equation}
+\end{proof}
+\begin{lem}
+    Let $Q$ be the matrix where rows are filled by $v_1, v_2, \ldots, v_n$ respectively and $\hat{Q}$ be the computed matrix where rows are given by $\hat{v}_1, \hat{v}_2, \ldots, \hat{v}_n$ respectively. Then
+    \begin{equation}
+        {\lVert \hat{Q}^{T} \hat{Q} - I \rVert}_F \leq 
+    \end{equation}
+    where $I$ is the identity matrix.
+\end{lem}
+\begin{proof}
+    Note that $Q$ is an orthogonal matrix i.e, $Q^TQ = I$. since both $Q$ and $\hat{Q}$ are $n \times n$ matrices there exist an error matrix $E$ such that $\hat{Q} = Q + E$. From Lemma~\ref{lemma14} we have
+\begin{equation}
+    {\lVert E\rVert}_F^2 \leq \sqrt{n} \gamma_{3n+2}
+\end{equation}
+\begin{equation}
+    \hat{Q}^T\hat{Q} = {(Q + E)}^T {(Q+E)} = I + E^TQ + Q^TE + E^TE
+\end{equation}
+\begin{equation}
+    {\lVert \hat{Q}^{T} \hat{Q} - I \rVert}_F = {\lVert E^TQ + Q^TE + E^TE \rVert}_F \leq {\lVert E^T Q\rVert}_F + {\lVert Q^T E\rVert}_F + {\lVert E^T E\rVert}_F
+\end{equation}
+\begin{equation}
+    \leq {\lVert E^T \rVert}_F + {\lVert E \rVert}_F + {\lVert E \rVert}_F^2 
+\end{equation}
+\begin{equation}
+    \leq n \gamma_{3n+2}^2 + 2 \sqrt{n} \gamma_{3n+2} \leq n \gamma_{3n+2}
+\end{equation}
+\end{proof}
+\section{QR decomposition}
+
+\section{QR algorithm}
+
+\section{Error Analysis}
+
+\end{document}
+
